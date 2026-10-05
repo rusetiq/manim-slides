@@ -31,7 +31,7 @@ def add_stream_from_template_legacy(
     return add_stream(template=template)
 
 
-def concatenate_video_files(files: list[Path], dest: Path) -> None:
+def concatenate_video_files(files: list[Path], dest: Path) -> None:  # noqa: C901
     """Concatenate multiple video files into one."""
     if len(files) == 1:
         shutil.copy(files[0], dest)
@@ -54,7 +54,12 @@ def concatenate_video_files(files: list[Path], dest: Path) -> None:
     with tempfile.NamedTemporaryFile(
         mode="w", suffix=".txt", delete=False, encoding="utf-8"
     ) as f:
-        f.writelines(f"file '{file}'\n" for file in _filter(files))
+        # Write absolute paths and escape single quotes ('\'') so that ffmpeg's
+        # concat demuxer parses every entry correctly, see #673.
+        f.writelines(
+            "file '{}'\n".format(file.resolve().as_posix().replace("'", "'\\''"))
+            for file in _filter(files)
+        )
         tmp_file = f.name
 
     with (
@@ -82,6 +87,7 @@ def concatenate_video_files(files: list[Path], dest: Path) -> None:
                 )
             )
 
+        last_dts = {"video": None, "audio": None}
         for packet in input_container.demux():
             if packet.dts is None:
                 continue
@@ -94,6 +100,14 @@ def concatenate_video_files(files: list[Path], dest: Path) -> None:
                 packet.stream = output_audio_stream
             else:
                 continue  # We don't support subtitles
+
+            # stopgap solution for https://github.com/jeertmans/manim-slides/issues/540
+            if last_dts[ptype] is not None and packet.dts <= last_dts[ptype]:
+                packet.dts = last_dts[ptype] + 1
+                if packet.pts is not None and packet.pts < packet.dts:
+                    packet.pts = packet.dts
+            last_dts[ptype] = packet.dts
+
             output_container.mux(packet)
 
     os.unlink(tmp_file)  # https://stackoverflow.com/a/54768241
@@ -113,7 +127,9 @@ def merge_basenames(files: list[Path]) -> Path:
 
     # We use hashes to prevent too-long filenames, see issue #123:
     # https://github.com/jeertmans/manim-slides/issues/123
-    basename = hashlib.sha256(basenames_str.encode()).hexdigest()
+    # Hash is truncated to 16 hex chars (64 bits) to keep total path length
+    # under Windows MAX_PATH (260 chars) — see issue #540.
+    basename = hashlib.sha256(basenames_str.encode()).hexdigest()[:16]
 
     logger.debug(f"Generated a new basename for basenames: {basenames} -> '{basename}'")
 
@@ -178,7 +194,13 @@ def reverse_video_file(
     num_processes: int | None = None,
     **tqdm_kwargs: Any,
 ) -> None:
-    """Reverses a video file, writing the result to `dest`."""
+    """
+    Reverses a video file, writing the result to `dest`.
+
+    Segmented reversal uses spawned processes to avoid inheriting renderer
+    locks. When calling this directly from a script, guard the entry point with
+    ``if __name__ == "__main__":`` so workers can safely import the main module.
+    """
     with av.open(str(src)) as input_container:  # Fast path if file is short enough
         input_stream = input_container.streams.video[0]
         if max_segment_duration is None:

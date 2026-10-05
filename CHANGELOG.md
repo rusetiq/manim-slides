@@ -8,8 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- start changelog -->
 
 (unreleased)=
-## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.6.0...HEAD)
+## [Unreleased](https://github.com/jeertmans/manim-slides/compare/v5.7.0...HEAD)
 
+(unreleased-fixed)=
+### Fixed
+
+- Fixed segmented video reversal stalls and made segment ordering deterministic.
+  [@rusetiq](https://github.com/rusetiq) [#668](https://github.com/jeertmans/manim-slides/pull/668)
+
+(v5.7.0)=
+## [v5.7.0](https://github.com/jeertmans/manim-slides/compare/v5.6.0...v5.7.0)
+
+(v5.7.0-added)=
 ### Added
 
 - Added `firebase_sync.html` template to enable realtime slide syncing via
@@ -17,17 +27,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   directory. [@liuktc](https://github.com/liuktc) [#638](https://github.com/jeertmans/manim-slides/pull/638)
 - Added support for named built-in templates. Now `manim-slides convert` accepts the template name without the full path. [@liuktc](https://github.com/liuktc) [#638](https://github.com/jeertmans/manim-slides/pull/638)
 - Added `wait_between_looping_slides` property to skip the `wait_time_between_slides` pause inside slides created with `next_slide(loop=True)`, avoiding a stutter on every loop repeat. [@zain-asif-dev](https://github.com/zain-asif-dev) [#648](https://github.com/jeertmans/manim-slides/pull/648)
+- Added Reveal.js asset caching for offline HTML export. [@saikat709](https://github.com/saikat709) [#645](https://github.com/jeertmans/manim-slides/pull/645)
 
+(v5.7.0-changed)=
 ### Changed
 
 - **Breaking change**: raised the minimum supported Python version from 3.9 to 3.10.
   [#636](https://github.com/jeertmans/manim-slides/pull/636)
 
+(v5.7.0-chore)=
 ### Chore
 
 - Migrated static type checking from `mypy` to [`ty`](https://github.com/astral-sh/ty).
   [#636](https://github.com/jeertmans/manim-slides/pull/636)
+- Moved the `ty` type-checking hook from pre-commit.ci, which does not allow
+  the network access it needs, to a dedicated GitHub Actions job.
+  [@Rodbourn](https://github.com/Rodbourn) [#682](https://github.com/jeertmans/manim-slides/pull/682)
+- Fixed several grammar issues in the FAQ documentation. [@TianHengZhuang](https://github.com/TianHengZhuang) [#696](https://github.com/jeertmans/manim-slides/pull/696)
 
+(v5.7.0-fixed)=
 ### Fixed
 
 - Fixed enum-typed HTML config values set via `-c` not being quoted in the output,
@@ -35,12 +53,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [@lapotist](https://github.com/lapotist) [#664](https://github.com/jeertmans/manim-slides/pull/664)
 - Fixed presenter looping when reversing multiple slides.
   [@wuerfelfreak](https://github.com/wuerfelfreak) [#665](https://github.com/jeertmans/manim-slides/pull/665)
-- Fixed segmented video reversal stalls and made segment ordering deterministic.
-  [@rusetiq](https://github.com/rusetiq) [#668](https://github.com/jeertmans/manim-slides/pull/668)
+- Fixed presenter not reversing to previous scene.
+  [@wuerfelfreak](https://github.com/wuerfelfreak) [#671](https://github.com/jeertmans/manim-slides/pull/671)
+- Fixed `concatenate_video_files` failing on relative input paths and on paths containing single quotes, by writing absolute, properly escaped entries to the concat list file.
+  [@Agi-Asi](https://github.com/Agi-Asi) [#673](https://github.com/jeertmans/manim-slides/pull/673)
+- Fixed `concatenate_video_files` failing with non monotonous dts and added test. [@wuerfelfreak](https://github.com/wuerfelfreak) [#680](https://github.com/jeertmans/manim-slides/pull/680)
+- Fixed animation stuttering when triggering loop termination in a non-interrupting fashion (using `--next-terminates-loop` flag) mid-animation.
+  [@melyso](https://github.com/melyso) [#605](https://github.com/jeertmans/manim-slides/pull/605)
+- Fixed typo in `RevealTheme` member name where `solarized` was misspelled as `soralized`.
+  [@ajlaanayan-crypto](https://github.com/ajlaanayan-crypto) [#692](https://github.com/jeertmans/manim-slides/pull/692)
+- Fixed Windows `MAX_PATH` failures when rendering scenes with many animations by truncating the `merge_basenames` hash to 16 hex chars.
+  [@aniruddhaadak80](https://github.com/aniruddhaadak80) [#675](https://github.com/jeertmans/manim-slides/pull/675)
 
 (v5.6.0)=
 ## [v5.6.0](https://github.com/jeertmans/manim-slides/compare/v5.5.4...v5.6.0)
 
+(v5.6.0-added)=
 ### Added
 
 - Added vertical slide implementation to html exports of presentations. [@DaughterOfSpring](https://github.com/daughterOfSpring) [#602](https://github.com/jeertmans/manim-slides/pull/602)
@@ -49,11 +77,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added option to specify the CDN from which to load RevealJS, and changed the default CDN, see [hakimel/reveal.js#3894](https://github.com/hakimel/reveal.js/issues/3894) for more details.
   [#618](https://github.com/jeertmans/manim-slides/pull/618)
 
+(v5.6.0-chore)=
 ### Chore
 
 - Changed default RevealJS version to 6.0.1. Updated the templates accordingly, and removed the use of minified versions, as they are no longer provided by the CDN.
   [#618](https://github.com/jeertmans/manim-slides/pull/618)
 
+(v5.6.0-fixed)=
 ### Fixed
 
 - Fixed missing FFmpeg in Docker/Binder environment causing rendering failures.
@@ -62,6 +92,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (v5.5.4)=
 ## [v5.5.4](https://github.com/jeertmans/manim-slides/compare/v5.5.3...v5.5.4)
 
+(v5.5.4-chore)=
 ### Chore
 
 - Added tips for working with large presentations to the documentation.
@@ -69,6 +100,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added new example to the example gallery.
   [@jdgsmallwood](https://github.com/jdgsmallwood) [#589](https://github.com/jeertmans/manim-slides/pull/589)
 
+(v5.5.4-fixed)=
 ### Fixed
 
 - Fixed compatibility issue with `av>=14` (and thus `manim>=0.19.2`).

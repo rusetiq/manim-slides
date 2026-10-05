@@ -4,9 +4,9 @@ requires = ["hatchling", "hatch-fancy-pypi-readme"]
 
 [dependency-groups]
 dev = [
-  {include-group = "docs"},
-  {include-group = "tests"},
-  {include-group = "typechecking"},
+  { include-group = "docs" },
+  { include-group = "tests" },
+  { include-group = "typechecking" },
   "bump-my-version>=0.20.3",
   "pre-commit>=3.5.0",
 ]
@@ -25,7 +25,7 @@ docs = [
   "sphinxext-opengraph>=0.7.5",
 ]
 tests = [
-  {include-group = "tests-no-qt"},
+  { include-group = "tests-no-qt" },
   "manim-slides[pyqt6,pyside6]",
 ]
 tests-no-qt = [
@@ -38,20 +38,19 @@ tests-no-qt = [
   "setuptools>=73.0.1",
 ]
 typechecking = [
-  {include-group = "tests-no-qt"},
+  { include-group = "tests-no-qt" },
   # Only one Qt binding is included here (unlike the `tests` group, which
   # installs both): ty cannot resolve `qtpy` classes to a single concrete
   # type when both PyQt6 and PySide6 are installed, since qtpy re-exports
   # whichever binding is available at runtime.
   "manim-slides[pyside6]",
   "lxml-stubs>=0.5.1",
-  "ty>=0.0.65",
   "types-requests>=2.28.1",
   "types-setuptools>=73.0.1",
 ]
 
 [project]
-authors = [{name = "Jérome Eertmans", email = "jeertmans@icloud.com"}]
+authors = [{ name = "Jérome Eertmans", email = "jeertmans@icloud.com" }]
 classifiers = [
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.10",
@@ -74,6 +73,7 @@ dependencies = [
   "lxml>=4.9.2",
   "numpy>=1.19",
   "pillow>=9.5.0",
+  "platformdirs>=4.0",
   "pydantic>=2.0.1",
   "pydantic-extra-types>=2.0.0",
   "python-pptx>=0.6.21",
@@ -96,7 +96,7 @@ full = [
 ]
 magic = ["manim-slides[manim]", "ipython>=8.12.2"]
 manim = ["manim>=0.19"]
-manimgl = ["manimgl>=1.7.2", "setuptools<81"]
+manimgl = ["manimgl>=1.7.2", "setuptools<80.10.2"]
 pyqt6 = ["pyqt6>=6.7.0"]
 pyqt6-full = ["manim-slides[full,pyqt6]"]
 pyside6 = ["pyside6>=6.6.1,!=6.8.1.1"]
@@ -117,7 +117,7 @@ Repository = "https://github.com/jeertmans/manim-slides"
 allow_dirty = false
 commit = true
 commit_args = ""
-current_version = "5.6.0"
+current_version = "5.7.0"
 ignore_missing_version = false
 message = "chore(deps): bump version from {current_version} to {new_version}"
 parse = '(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)(-rc(?P<release>\d+))?'
@@ -239,10 +239,11 @@ extend-ignore = [
   "E501",
 ]
 extend-select = ["B", "C90", "D", "I", "N", "RUF", "UP", "T"]
-isort = {known-first-party = ["manim_slides", "tests"]}
+isort = { known-first-party = ["manim_slides", "tests"] }
 
 [tool.ruff.lint.per-file-ignores]
 "docs/source/reference/magic_example.ipynb" = ["F403", "F405"]
+"manim_slides/present/player.py" = ["C901"]
 "tests/test_slide.py" = ["N801"]
 
 [tool.ty.rules]
